@@ -14,6 +14,32 @@
 namespace OpenEngine {
 namespace Network {
 
+    struct User {
+        
+        string nick;
+
+        User(string n) : nick(n) {}
+
+        User(Prefix p) : nick(p.Nick()) {}
+
+        //Prefix prefix;
+        
+    };
+
+
+    struct MessageEventArg {
+        User* user;
+        IRCChannel* channel;
+        string message;
+    };
+
+    struct UserArg {
+        User* user;
+
+    };
+    struct UserJoinedArg : UserArg {};
+    struct UserPartedArg : UserArg {};
+
 /**
  * Short description.
  *
@@ -23,12 +49,32 @@ class IRCChannel {
 private:
     IRCClient& client;
     string name;
+    
+    LockedQueuedEvent<UserJoinedArg> joinEvent;
+    LockedQueuedEvent<UserPartedArg> partEvent;
+    
+    LockedQueuedEvent<MessageEventArg> msgEvent;
+
+    list<User*> users;
+
+    User* FindUser(string nick);
+    
+    void AddUser(User*);
+
 protected:
     friend class IRCClient;
-    IRCChannel(IRCClient& client, string name);
+    IRCChannel(IRCClient& client, string name);    
 public:
-    void SendMsg(string msg);
+    ~IRCChannel();
     
+    void SendMsg(string msg);
+
+    void HandleIRCLine(IRCLine l);
+
+    IEvent<UserJoinedArg>& UserJoinedEvent() {return joinEvent;}
+    IEvent<UserPartedArg>& UserPartedEvent() {return partEvent;}
+
+    IEvent<MessageEventArg>& ChannelMessageEvent() {return msgEvent;}
 };
 
 } // NS Network

@@ -9,13 +9,27 @@
 
 #include <sstream>
 #include <vector>
-
+#include <boost/algorithm/string.hpp>
 
 namespace OpenEngine {
 namespace Network {
 
+    struct Prefix {
+        string raw;
+
+        string Nick() {            
+            vector<string> parts;
+            boost::split(parts, raw, boost::is_any_of("!@"));
+            
+            return parts[0];
+
+        }
+
+        
+    };
+
     struct IRCLine {
-        string prefix;
+        Prefix prefix;
         string cmd;
         vector<string> params;
         string tail;
@@ -26,11 +40,12 @@ namespace Network {
 
         }
 
+        
         string Encode() {
             ostringstream out;
 
-            if (prefix != "")
-                out << ":" << prefix << " ";
+            if (prefix.raw != "")
+                out << ":" << prefix.raw << " ";
             out << cmd << " ";
 
             for (vector<string>::iterator itr = params.begin();
@@ -50,7 +65,7 @@ namespace Network {
 
             if (line[0] == ':') {
                 iss.get(); // remove :
-                iss >> prefix;
+                iss >> prefix.raw;
             }
             iss >> cmd;
 
@@ -72,7 +87,7 @@ namespace Network {
             ostringstream out;
 
             out << "IRC:" << endl
-                << " prefix( " << prefix << " )" << endl
+                << " prefix( " << prefix.raw << " )" << endl
                 << "    cmd( " <<    cmd << " )" << endl;
 
             for (vector<string>::iterator itr = params.begin();

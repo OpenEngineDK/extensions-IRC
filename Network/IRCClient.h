@@ -28,8 +28,8 @@ namespace Network {
     class IRCChannel;
 
     struct JoinedChannelArg {
-        IRCChannel& channel;
-        JoinedChannelArg(IRCChannel& c) : channel(c) {}
+        IRCChannel* channel;
+        JoinedChannelArg(IRCChannel* c) : channel(c) {}
     };
 
 
@@ -52,12 +52,16 @@ private:
 
     LockedQueuedEvent<JoinedChannelArg> joinEvent;
 
+    list<IReleaseAble*> events;
+
     bool isOnline;
 
     list<IRCLine> queuedLines;
     map<string,IRCChannel*> channels;
 
     void EmptyQueue();
+
+    void HandleIRCLine(IRCLine l);
 
 protected:
     friend class IRCChannel;
@@ -71,7 +75,7 @@ public:
     
     void Run();
 
-    void HandleIRCLine(IRCLine l);
+    string GetNick() {return nick;}
 
     void Join(string ch );
 

@@ -41,6 +41,8 @@ namespace Network {
         SendIRCLine(nl,true);
         SendIRCLine(ul,true);
         
+        events.push_back(&joinEvent);
+
     }
 
     IRCClient::~IRCClient() {
@@ -93,16 +95,51 @@ namespace Network {
         } else if (line.cmd == "PING") {
             SendIRCLine(IRCLine("PONG",line.tail));
         }  else if (line.cmd == "JOIN") {
-            IRCChannel* ch =new IRCChannel(*this,line.tail);
-            channels.insert(make_pair<>(line.tail,ch));
-            JoinedChannelArg arg(*ch);
-            joinEvent.Notify(arg);
+            // me, or another?
+            if (line.prefix.Nick() == nick) {
+                IRCChannel* ch =new IRCChannel(*this,line.tail);
+                channels.insert(make_pair<>(line.tail,ch));
+                JoinedChannelArg arg(ch);
+                joinEvent.Notify(arg);
+            } else {
+                string name = line.tail;
+                IRCChannel* ch = channels[name]; // this will insert a
+                                                 // null pointer if it
+                                                 // doesn't exist.
+                ch->HandleIRCLine(line);
+            }
+        } else if (line.cmd == "353") { // names reply
+            string name;
+            if (line.params.size() == 2) { // rfc 1459
+                name = line.params[1];
+            } else if (line.params.size() == 3) {
+                name = line.params[2];
+            } else {
+                throw "Unknown irc protocol";
+            }
+            IRCChannel* ch = channels[name]; // this will insert a
+                                             // null pointer if it
+                                             // doesn't exist.
+            ch->HandleIRCLine(line);            
+
+        } else if (line.cmd == "PRIVMSG") {
+            string to = line.params[0];
+            if (to[0] == '#') { // to a channel
+                IRCChannel* ch = channels[to];
+                
+                ch->HandleIRCLine(line);
+            }
         }
+        
             
     }
 
     void IRCClient::Handle(ProcessEventArg arg) {
-        joinEvent.Release();
+        for(list<IReleaseAble*>::iterator itr = events.begin();
+            itr != events.end();
+            itr++) {
+            (*itr)->Release();
+        }               
     }
 
     void IRCClient::Handle(DeinitializeEventArg arg) {
