@@ -46,7 +46,7 @@ private:
     TCPSocket* sock;
 
     string host,nick,user;
-    bool run;
+    volatile bool run;
 
 
 
