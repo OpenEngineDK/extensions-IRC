@@ -1,0 +1,6 @@
+# get self
+darcs /extensions/IRC 	 http://openengine.dk/code/extensions/IRC
+darcs-dev /extensions/IRC 	     fh.daimi.au.dk:/users/cgd/code/extensions/IRC
+
+# deps
+dist /extensions/Sockets/Sockets.dist http://openengine.dk/code/extensions/Sockets/Sockets.dist
