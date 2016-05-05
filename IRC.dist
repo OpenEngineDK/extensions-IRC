@@ -1,6 +1,6 @@
 # get self
-darcs /extensions/IRC 	 http://openengine.dk/code/extensions/IRC
-darcs-dev /extensions/IRC 	     fh.daimi.au.dk:/users/cgd/code/extensions/IRC
+git /extensions/IRC 	 https://github.com/OpenEngineDK/extensions-IRC.git
+git-dev /extensions/IRC 	     git@github.com:OpenEngineDK/extensions-IRC.git
 
 # deps
-dist /extensions/Sockets/Sockets.dist http://openengine.dk/code/extensions/Sockets/Sockets.dist
+dist /extensions/Sockets/Sockets.dist https://raw.githubusercontent.com/OpenEngineDK/extensions-Sockets/master/Sockets.dist
